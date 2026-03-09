@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 300px;
+      font-family: 'Segoe UI', monospace, sans-serif;
+      background: #0f0f1a;
+      color: #eee;
+      padding: 16px;
+    }
+
+    /* ── Заголовок ── */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    h2 {
+      color: #e94560;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+    .dot.active   { background: #4caf50; animation: pulse 1.5s infinite; }
+    .dot.inactive { background: #555; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* ── Переключатель языка ── */
+    .lang-switcher {
+      display: flex;
+      gap: 2px;
+      background: #1a1a2e;
+      border-radius: 6px;
+      padding: 2px;
+    }
+    .lang-btn {
+      flex: 1;
+      padding: 3px 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      background: transparent;
+      color: #555;
+      transition: all 0.15s;
+    }
+    .lang-btn.active {
+      background: #0f3460;
+      color: #90caf9;
+    }
+    .lang-btn:hover:not(.active) { color: #aaa; }
+
+    /* ── Чекбоксы настроек ── */
+    .settings {
+      background: #1a1a2e;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .settings-title {
+      font-size: 10px;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .checkbox-row input[type="checkbox"] {
+      width: 14px; height: 14px;
+      margin-top: 2px;
+      flex-shrink: 0;
+      accent-color: #4fc3f7;
+      cursor: pointer;
+    }
+    .checkbox-label { font-size: 12px; line-height: 1.4; }
+    .checkbox-label .sub {
+      font-size: 10px;
+      color: #555;
+      display: block;
+      margin-top: 1px;
+    }
+
+    /* ── Кнопка сессии ── */
+    .session-btn {
+      width: 100%;
+      padding: 11px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      transition: opacity 0.15s;
+    }
+    .session-btn:hover { opacity: 0.85; }
+    .session-btn.start { background: #1b5e20; color: #a5d6a7; }
+    .session-btn.stop  { background: #b71c1c; color: #ffcdd2; }
+
+    /* ── Статус ── */
+    .status {
+      background: #1a1a2e;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      line-height: 1.8;
+      color: #aaa;
+    }
+    .status span { color: #4fc3f7; font-weight: bold; }
+
+    /* ── Нижние кнопки ── */
+    .bottom-buttons { display: flex; gap: 8px; }
+    button {
+      flex: 1; padding: 8px; border: none;
+      border-radius: 6px; cursor: pointer;
+      font-size: 12px; font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    button:hover    { opacity: 0.85; }
+    button:disabled { opacity: 0.35; cursor: not-allowed; }
+    .btn-download { background: #0f3460; color: #90caf9; }
+    .btn-clear    { background: #3d0000; color: #ef9a9a; }
+
+    .hint {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #444;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .filter-input {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background: #12122a;
+      color: #eee;
+      font-size: 12px;
+      font-family: monospace;
+      outline: none;
+      margin-top: 6px;
+    }
+    .filter-input::placeholder { color: #555; }
+    .filter-input:focus { border-color: #4fc3f7; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2>
+      <span class="dot inactive" id="statusDot"></span>
+      dataLayer Logger
+    </h2>
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="langEn">EN</button>
+      <button class="lang-btn"        id="langRu">RU</button>
+    </div>
+  </div>
+
+  <!-- Настройки -->
+  <div class="settings">
+    <div class="settings-title" data-i18n="settingsTitle">What to record</div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="chkPushes" checked />
+      <span class="checkbox-label">
+        <span data-i18n="chkPushesLabel">Log pushes</span>
+        <span class="sub" data-i18n="chkPushesSub">dataLayer.push events</span>
+      </span>
+    </label>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="chkConsole" />
+      <span class="checkbox-label">
+        <span data-i18n="chkConsoleLabel">Log console</span>
+        <span class="sub" data-i18n="chkConsoleSub">console.log / warn / error / info</span>
+      </span>
+    </label>
+
+    <input type="text" class="filter-input" id="consoleFilter"
+           data-i18n-ph="consoleFilterPh"
+           placeholder="Filter console (substring)" />
+  </div>
+
+  <button class="session-btn start" id="btnSession" data-i18n="btnStart">▶ Start session</button>
+
+  <div class="status">
+    <span data-i18n="statusLabel">Status:</span> <span id="statusText" data-i18n="statusInactive">inactive</span><br>
+    <span data-i18n="clicksLabel">Clicks:</span> <span id="clickCount">0</span><br>
+    <span data-i18n="pushesLabel">Pushes:</span> <span id="pushCount">0</span><br>
+    <span data-i18n="consoleLabel">Console logs:</span> <span id="consoleCount">0</span>
+  </div>
+
+  <div class="bottom-buttons">
+    <button class="btn-download" id="btnDownload" disabled data-i18n="btnDownload">⬇ Download report</button>
+    <button class="btn-clear" id="btnClear" data-i18n="btnClear">🗑 Clear</button>
+  </div>
+
+  <div class="hint" id="hint" data-i18n="hintInactive">Configure what to record and click "Start session"</div>
+
+  <div style="text-align:right; color:#333; font-size:10px; margin-top:8px;" id="version"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
